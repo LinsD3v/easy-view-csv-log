@@ -105,6 +105,17 @@ def search_product():
         "results": results.head(50).to_dict(orient="records")
     })
 
+@app.route("/csv/clear", methods=["POST"])
+def clear_csv():
+
+    STATE["dataframe"] = None
+    STATE["machine_type"] = None
+    STATE["uploaded_at"] = None
+
+    return jsonify({
+        "message": "CSV removido com sucesso"
+    })
+
 # ====== debug_routes ======
 
 @app.route("/csv/debug/products")
