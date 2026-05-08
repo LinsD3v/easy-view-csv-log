@@ -55,7 +55,7 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
     # descarta logs com volume próximo a 0,8 L quando não for esmalte
     df = df[
         ~(
-            df["FillingVolume"].between(0.75, 0.85)
+            df["FillingVolume"].between(0.1, 0.85)
             & ~df["ProductCode"].str.contains(
                 "ESMALTE",
                 case=False,
