@@ -30,10 +30,38 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
         .str.strip()
     )
 
+    # fixa volume numérico antes dos filtros
+    df["FillingVolume"] = pd.to_numeric(
+        df["FillingVolume"],
+        errors="coerce"
+    )
+
     # remove produtos inválidos
     df = df[
         ~df["ProductCode"]
         .isin(INVALID_PRODUCTS)
+    ]
+
+    # mantém apenas unidades válidas na coluna UnitName
+    df["UnitName"] = (
+        df["UnitName"]
+        .astype(str)
+        .str.strip()
+    )
+    df = df[
+        df["UnitName"].isin(VALID_UNITS)
+    ]
+
+    # descarta logs com volume próximo a 0,8 L quando não for esmalte
+    df = df[
+        ~(
+            df["FillingVolume"].between(0.75, 0.85)
+            & ~df["ProductCode"].str.contains(
+                "ESMALTE",
+                case=False,
+                na=False,
+            )
+        )
     ]
 
     # dataframe padronizado
@@ -48,6 +76,11 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
         "base_code": df["BasePaintCode"],
 
         "product_name": df["ProductCode"],
+
+        "volume": pd.to_numeric(
+            df["FillingVolume"],
+            errors="coerce"
+        ),
     })
 
     # campos derivados
