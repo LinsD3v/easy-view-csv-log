@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV Viewer</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Dosadora CSV</h1>
+
+        <div id="status"></div>
+
+        <div id="upload-section" style="display: none;">
+            <h2>Enviar CSV</h2>
+
+            <input type="file" id="csv-file">
+
+            <button onclick="uploadCsv()">
+                Upload
+            </button>
+        </div>
+
+        <div id="search-section" style="display: none;">
+
+            <h2>Buscar produto</h2>
+
+            <input
+                type="text"
+                id="search-input"
+                placeholder="Digite o nome..."
+            >
+
+            <button onclick="searchProduct()">
+                Buscar
+            </button>
+
+            <div id="results"></div>
+
+        </div>
+
+    </div>
+
+    <script src="/static/app.js"></script>
+
+</body>
+</html>

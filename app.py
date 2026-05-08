@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 import pandas as pd
 
@@ -120,6 +120,12 @@ def debug_products():
     )
 
     return jsonify(products)
+
+# ===================== frontend =====================
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
