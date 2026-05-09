@@ -11,6 +11,8 @@ VALID_UNITS = [
 ]
 
 def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
+    # Cria cópia explícita para evitar SettingWithCopyWarning
+    df = df.copy()
 
     # normaliza nomes das colunas
     df.columns = [
@@ -24,14 +26,14 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # remove espaços
-    df["ProductCode"] = (
+    df.loc[:, "ProductCode"] = (
         df["ProductCode"]
         .astype(str)
         .str.strip()
     )
 
     # fixa volume numérico antes dos filtros
-    df["FillingVolume"] = pd.to_numeric(
+    df.loc[:, "FillingVolume"] = pd.to_numeric(
         df["FillingVolume"],
         errors="coerce"
     )
@@ -43,7 +45,7 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # mantém apenas unidades válidas na coluna UnitName
-    df["UnitName"] = (
+    df.loc[:, "UnitName"] = (
         df["UnitName"]
         .astype(str)
         .str.strip()
@@ -93,7 +95,5 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
         parsed["mixed_at"]
         .dt.strftime("%H:%M:%S")
     )
-
-    df = df.copy()
 
     return parsed.fillna("")
