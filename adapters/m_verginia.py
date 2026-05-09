@@ -94,4 +94,6 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
         .dt.strftime("%H:%M:%S")
     )
 
+    df = df.copy()
+
     return parsed.fillna("")
