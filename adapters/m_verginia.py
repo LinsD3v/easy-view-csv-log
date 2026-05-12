@@ -95,5 +95,10 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
         parsed["mixed_at"]
         .dt.strftime("%H:%M:%S")
     )
+    
+    parsed = parsed.sort_values(
+    by="mixed_at",
+    ascending=False
+    )
 
     return parsed.fillna("")

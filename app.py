@@ -35,17 +35,39 @@ def upload_csv():
 
         # adapter
         parsed_df = parse_m_verginia(df)
+        
+        # extrai periodo do log
+        first_record = parsed_df["mixed_at"].min()
+        last_record = parsed_df["mixed_at"].max()
 
         # salva em memória
         STATE["dataframe"] = parsed_df
         STATE["machine_type"] = "m_verginia"
         STATE["uploaded_at"] = datetime.now()
+        STATE["log_period"] = {
+            "start": first_record,
+            "end": last_record
+        }
 
         return jsonify({
             "message": "CSV carregado com sucesso",
             "rows": len(parsed_df),
             "columns": list(parsed_df.columns),
-            "uploaded_at": STATE["uploaded_at"].isoformat()
+            "uploaded_at": STATE["uploaded_at"].isoformat(),
+        
+            "log_period": {
+                "start": (
+                    STATE["log_period"]["start"].isoformat()
+                    if STATE["log_period"]["start"] is not None
+                    else None
+                ),
+        
+                "end": (
+                    STATE["log_period"]["end"].isoformat()
+                    if STATE["log_period"]["end"] is not None
+                    else None
+                )
+            }
         })
 
     except Exception as e:
@@ -66,9 +88,30 @@ def csv_info():
 
     return jsonify({
         "rows": len(df),
+
         "columns": list(df.columns),
+
         "machine_type": STATE["machine_type"],
-        "uploaded_at": STATE["uploaded_at"].isoformat()
+
+        "uploaded_at": (
+            STATE["uploaded_at"].isoformat()
+            if STATE["uploaded_at"] is not None
+            else None
+        ),
+
+        "log_period": {
+            "start": (
+                STATE["log_period"]["start"].isoformat()
+                if STATE["log_period"]["start"] is not None
+                else None
+            ),
+
+            "end": (
+                STATE["log_period"]["end"].isoformat()
+                if STATE["log_period"]["end"] is not None
+                else None
+            )
+        }
     })
     
 @app.route("/csv/search/product", methods=["GET"])
@@ -111,6 +154,7 @@ def clear_csv():
     STATE["dataframe"] = None
     STATE["machine_type"] = None
     STATE["uploaded_at"] = None
+    STATE["log_period"] = None
 
     return jsonify({
         "message": "CSV removido com sucesso"
@@ -122,6 +166,11 @@ def clear_csv():
 def debug_products():
 
     df = STATE["dataframe"]
+
+    if df is None:
+        return jsonify({
+            "error": "Nenhum CSV carregado"
+        }), 404
 
     products = (
         df["product_name"]
