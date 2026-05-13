@@ -83,6 +83,8 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
             df["FillingVolume"],
             errors="coerce"
         ),
+
+        "color_code": df["ColorCardCode"],
     })
 
     # campos derivados

@@ -222,5 +222,98 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Busca Avançada
+function openAdvancedSearch() {
+    document.getElementById("advanced-search-modal").style.display = "flex";
+}
+
+function closeAdvancedSearch() {
+    document.getElementById("advanced-search-modal").style.display = "none";
+    // Limpar campos
+    document.getElementById("adv-query").value = "";
+    document.getElementById("adv-base").value = "";
+    document.getElementById("adv-volume").value = "";
+    document.getElementById("adv-color").value = "";
+}
+
+async function advancedSearch() {
+    const query = document.getElementById("adv-query").value.trim();
+    const base = document.getElementById("adv-base").value.trim();
+    const volume = document.getElementById("adv-volume").value.trim();
+    const color = document.getElementById("adv-color").value.trim();
+
+    // Verificar se pelo menos um campo foi preenchido
+    if (!query && !base && !volume && !color) {
+        alert("❌ Preencha pelo menos um campo para buscar");
+        return;
+    }
+
+    // Construir URL com parâmetros
+    const params = new URLSearchParams();
+    if (query) params.append("query", query);
+    if (base) params.append("base", base);
+    if (volume) params.append("volume", volume);
+    if (color) params.append("color", color);
+
+    try {
+        const response = await fetch(`/csv/search/product?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(`❌ Erro: ${data.error}`);
+            return;
+        }
+
+        // Fechar modal
+        closeAdvancedSearch();
+
+        // Limpar busca simples
+        document.getElementById("search-input").value = "";
+
+        // Mostrar resultados
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        if (data.results.length === 0) {
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; padding: 30px; color: #999;">
+                    <p>🔍 Nenhum produto encontrado com os filtros aplicados</p>
+                </div>
+            `;
+            return;
+        }
+
+        resultsDiv.innerHTML = `
+            <div style="text-align: center; color: #667eea; margin-bottom: 20px;">
+                <strong>✅ ${data.results.length} resultado(s) encontrado(s)</strong>
+            </div>
+        `;
+
+        data.results.forEach(item => {
+            resultsDiv.innerHTML += `
+                <div class="card">
+                    <p><strong>📦 ${item.product_name}</strong></p>
+                    <p>🔑 Base: <span style="color: #667eea;">${item.base_code}</span></p>
+                    <p>🎨 Cor: <span style="color: #667eea;">${item.color_code}</span></p>
+                    <p>📊 Volume: <span style="color: #667eea;">${item.volume}</span></p>
+                    <p>📅 Data: <span style="color: #667eea;">${item.date}</span></p>
+                    <p>⏱️ Hora: <span style="color: #667eea;">${item.time}</span></p>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        alert(`❌ Erro ao buscar: ${error.message}`);
+    }
+}
+
+// Fechar modal ao clicar fora
+document.addEventListener("click", (e) => {
+    const modal = document.getElementById("advanced-search-modal");
+    if (e.target === modal) {
+        closeAdvancedSearch();
+    }
+});
+
 // Carregar informações ao iniciar
 loadInfo();

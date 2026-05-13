@@ -86,9 +86,66 @@
                     <button onclick="searchProduct()" class="btn btn-search">
                         Buscar
                     </button>
+                    <button onclick="openAdvancedSearch()" class="btn btn-advanced">
+                        🔧 Avançado
+                    </button>
                 </div>
                 
                 <div id="results" class="results-container"></div>
+            </div>
+        </div>
+
+        <!-- Advanced Search Modal -->
+        <div id="advanced-search-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔍 Busca Avançada</h3>
+                    <button onclick="closeAdvancedSearch()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="adv-query">Nome do Produto:</label>
+                        <input
+                            type="text"
+                            id="adv-query"
+                            placeholder="Ex: Premium, Fosco..."
+                            class="search-input"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="adv-base">Código da Base:</label>
+                        <input
+                            type="text"
+                            id="adv-base"
+                            placeholder="Ex: A, B, C..."
+                            class="search-input"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="adv-volume">Volume:</label>
+                        <input
+                            type="number"
+                            id="adv-volume"
+                            placeholder="Ex: 16, 3.2..."
+                            class="search-input"
+                            step="0.1"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="adv-color">Código da Cor:</label>
+                        <input
+                            type="text"
+                            id="adv-color"
+                            placeholder="Ex: SUV, B161..."
+                            class="search-input"
+                        >
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="advancedSearch()" class="btn btn-primary">
+                        🔍 BUSCAR
+                    </button>
+                </div>
             </div>
         </div>
 

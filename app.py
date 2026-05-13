@@ -117,8 +117,6 @@ def csv_info():
 @app.route("/csv/search/product", methods=["GET"])
 def search_product():
 
-    query = request.args.get("query", "").lower()
-
     df = STATE["dataframe"]
 
     if df is None:
@@ -126,18 +124,61 @@ def search_product():
             "error": "Nenhum CSV carregado"
         }), 404
 
-    if not query:
+    # Obtém parâmetros opcionais
+    query = request.args.get("query", "").lower()
+    base = request.args.get("base", "").upper()
+    volume = request.args.get("volume", "")
+    color = request.args.get("color", "").upper()
+
+    # Inicia com todos os registros
+    results = df.copy()
+
+    # Filtra por query (product_name) - opcional
+    if query:
+        results = results[
+            results["product_name"]
+            .str.lower()
+            .str.contains(query, na=False)
+        ]
+
+    # Filtra por base_code - opcional
+    if base:
+        results = results[
+            results["base_code"]
+            .astype(str)
+            .str.upper()
+            .str.contains(base, na=False)
+        ]
+
+    # Filtra por volume - opcional
+    if volume:
+        try:
+            volume_float = float(volume)
+            results = results[
+                results["volume"] == volume_float
+            ]
+        except ValueError:
+            return jsonify({
+                "error": "Parâmetro 'volume' deve ser um número"
+            }), 400
+
+    # Filtra por color_code - opcional
+    if color:
+        results = results[
+            results["color_code"]
+            .astype(str)
+            .str.upper()
+            .str.contains(color, na=False)
+        ]
+
+    # Se nenhum filtro foi aplicado, retorna erro
+    if not query and not base and not volume and not color:
         return jsonify({
-            "error": "Query vazia"
+            "error": "Pelo menos um parâmetro de busca deve ser fornecido (query, base, volume ou color)"
         }), 400
 
-    results = df[
-        df["product_name"]
-        .str.lower()
-        .str.contains(query, na=False)
-    ]
-
-    results = results.copy()
+    # Ordena por mixed_at em ordem descendente (mais recentes primeiro)
+    results = results.sort_values(by="mixed_at", ascending=False)
 
     results["mixed_at"] = results["mixed_at"].astype(str)
     results["date"] = results["date"].astype(str)
