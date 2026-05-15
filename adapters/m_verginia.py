@@ -14,9 +14,9 @@ def parse_m_verginia(df: pd.DataFrame) -> pd.DataFrame:
     # Cria cópia explícita para evitar SettingWithCopyWarning
     df = df.copy()
 
-    # normaliza nomes das colunas
+    # normaliza nomes das colunas (remove BOM e espaços)
     df.columns = [
-        c.strip()
+        c.strip().lstrip('\ufeff')
         for c in df.columns
     ]
 

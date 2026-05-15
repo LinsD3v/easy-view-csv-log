@@ -25,11 +25,11 @@ def upload_csv():
 
     try:
 
-        # leitura do CSV
+        # leitura do CSV (com suporte a UTF-8 BOM)
         df = pd.read_csv(
             file,
             sep=";",
-            encoding="latin-1",
+            encoding="utf-8-sig",
             dtype=str
         )
 
