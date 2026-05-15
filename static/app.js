@@ -42,11 +42,24 @@ async function loadInfo() {
         const uploadDate = new Date(data.uploaded_at);
         const formattedDate = uploadDate.toLocaleString("pt-BR");
 
+        // Formatar período
+        let periodText = "-";
+        if (data.first_record && data.first_record.mixed_at && data.second_record && data.second_record.mixed_at) {
+            const firstDate = new Date(data.first_record.mixed_at);
+            const lastDate = new Date(data.log_period.end);
+            
+            const formattedFirstDate = firstDate.toLocaleDateString("pt-BR");
+            const formattedLastDate = lastDate.toLocaleDateString("pt-BR");
+            
+            periodText = `${formattedFirstDate} até ${formattedLastDate}`;
+        }
+
         // Atualizar informações
         document.getElementById("info-rows").textContent = data.rows.toLocaleString("pt-BR");
         document.getElementById("info-machine").textContent = data.machine_type || "Desconhecida";
         document.getElementById("info-time").textContent = formattedDate;
         document.getElementById("info-columns").textContent = data.columns.length;
+        document.getElementById("info-period").textContent = periodText;
 
         // Mostrar seções apropriadas
         uploadSection.style.display = "none";
@@ -61,6 +74,9 @@ async function loadInfo() {
             <p>🏭 Máquina: <strong>${data.machine_type}</strong></p>
             <p>📋 Colunas: <strong>${data.columns.length}</strong> (${data.columns.join(", ")})</p>
             <p>⏰ Carregado em: <strong>${formattedDate}</strong></p>
+            <p>📅 Período: <strong>${periodText}</strong></p>
+            <p>🔍 Primeiro registro: <strong>${data.first_record?.product_name}</strong> às <strong>${new Date(data.first_record?.mixed_at).toLocaleTimeString("pt-BR")}</strong></p>
+            <p>🔍 Segundo registro: <strong>${data.second_record?.product_name}</strong> às <strong>${new Date(data.second_record?.mixed_at).toLocaleTimeString("pt-BR")}</strong></p>
         `;
 
     } catch {

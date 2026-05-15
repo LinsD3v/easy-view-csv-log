@@ -86,6 +86,18 @@ def csv_info():
             "error": "Nenhum CSV carregado"
         }), 404
 
+    # Ordena por mixed_at em ordem ascendente para pegar primeiro e segundo registros
+    df_sorted = df.sort_values(by="mixed_at", ascending=True)
+    
+    # Extrai primeiro e segundo registros
+    first_record = None
+    second_record = None
+    
+    if len(df_sorted) > 0:
+        first_record = df_sorted.iloc[0].to_dict()
+    if len(df_sorted) > 1:
+        second_record = df_sorted.iloc[1].to_dict()
+
     return jsonify({
         "rows": len(df),
 
@@ -111,7 +123,10 @@ def csv_info():
                 if STATE["log_period"]["end"] is not None
                 else None
             )
-        }
+        },
+
+        "first_record": first_record,
+        "second_record": second_record
     })
     
 @app.route("/csv/search/product", methods=["GET"])
