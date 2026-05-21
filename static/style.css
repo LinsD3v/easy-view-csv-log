@@ -49,6 +49,7 @@ body {
     margin-bottom: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.6s ease-out;
+    border-left: 5px solid transparent;
 }
 
 .status-badge p {
@@ -59,6 +60,18 @@ body {
 
 .status-badge strong {
     color: #667eea;
+}
+
+.status-badge.loading {
+    border-left-color: #667eea;
+}
+
+.status-badge.error {
+    border-left-color: #ff6b6b;
+}
+
+.status-badge.success {
+    border-left-color: #51cf66;
 }
 
 .status-loading {

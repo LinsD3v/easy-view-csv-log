@@ -6,6 +6,43 @@ const searchSection = document.getElementById("search-section");
 const clearSection = document.getElementById("clear-section");
 const uploadBox = document.getElementById("upload-box");
 const csvFileInput = document.getElementById("csv-file");
+let isUploading = false;
+
+function updateStatusBadge(html, type = "") {
+    statusBadge.classList.remove("loading", "error", "success");
+    if (type) {
+        statusBadge.classList.add(type);
+    }
+    statusBadge.innerHTML = html;
+}
+
+function setNoCsvStatus() {
+    updateStatusBadge(`
+        <p class="status-loading">📁 <strong>Nenhum CSV carregado</strong></p>
+        <p>Envie um arquivo CSV para começar.</p>
+    `);
+}
+
+function setUploadingStatus(file) {
+    updateStatusBadge(`
+        <p class="status-loading">⏳ Enviando arquivo <strong>${file.name}</strong>...</p>
+        <p>Tamanho: <strong>${(file.size / 1024).toFixed(1)} KB</strong></p>
+        <p>Aguarde enquanto o servidor processa o CSV.</p>
+    `, "loading");
+}
+
+function setErrorStatus(message) {
+    updateStatusBadge(`
+        <p class="status-loading">❌ Erro no upload</p>
+        <p>${message}</p>
+    `, "error");
+}
+
+function setSuccessStatus(message) {
+    updateStatusBadge(`
+        <p class="status-loaded">✅ ${message}</p>
+    `, "success");
+}
 
 // Drag and Drop
 uploadBox.addEventListener("click", () => csvFileInput.click());
@@ -24,7 +61,17 @@ uploadBox.addEventListener("drop", (e) => {
     uploadBox.style.background = "#f8f9ff";
     
     if (e.dataTransfer.files.length) {
-        csvFileInput.files = e.dataTransfer.files;
+        const file = e.dataTransfer.files[0];
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        csvFileInput.files = dt.files;
+    }
+});
+
+csvFileInput.addEventListener("change", () => {
+    const selectedFile = csvFileInput.files[0];
+    if (selectedFile) {
+        uploadBox.querySelector("p").textContent = `Arquivo selecionado: ${selectedFile.name}`;
     }
 });
 
@@ -87,12 +134,16 @@ async function loadInfo() {
 
         statusBadge.innerHTML = `
             <p class="status-loading">📁 <strong>Nenhum CSV carregado</strong></p>
-            <p>Envie um arquivo CSV para começar</p>
+            <p>Envie um arquivo CSV p=ara começar</p>
         `;
     }
 }
 
 async function uploadCsv() {
+    if (isUploading) {
+        return;
+    }
+
     const fileInput = document.getElementById("csv-file");
 
     if (!fileInput.files.length) {
@@ -108,6 +159,9 @@ async function uploadCsv() {
         return;
     }
 
+    isUploading = true;
+    setUploadingStatus(file);
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -120,23 +174,21 @@ async function uploadCsv() {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(`❌ Erro: ${data.error || data.message}`);
+            setErrorStatus(data.error || data.message || "Falha ao enviar o arquivo.");
+            isUploading = false;
             return;
         }
 
-        // Mostrar sucesso
-        statusBadge.innerHTML = `
-            <p style="color: #51cf66; font-weight: bold;">✅ Arquivo enviado com sucesso!</p>
-            <p>Carregando informações...</p>
-        `;
+        setSuccessStatus("CSV enviado com sucesso! Recarregando informações...");
 
-        // Recarregar informações após um pequeno delay
         setTimeout(() => {
             loadInfo();
+            isUploading = false;
         }, 500);
 
     } catch (error) {
-        alert(`❌ Erro ao enviar arquivo: ${error.message}`);
+        setErrorStatus(`Erro ao enviar arquivo: ${error.message}`);
+        isUploading = false;
     }
 }
 
@@ -183,6 +235,7 @@ async function searchProduct() {
                 <div class="card">
                     <p><strong>📦 ${item.product_name}</strong></p>
                     <p>🔑 Código: <span style="color: #667eea;">${item.base_code}</span></p>
+                    <p>🎨 Cor dosada: <span style="color: #667eea;">${item.cor  || item.color || item.color_code || "-"}</span></p>
                     <p>📊 Volume: <span style="color: #667eea;">${item.volume}</span></p>
                     <p>📅 Data: <span style="color: #667eea;">${item.date}</span></p>
                     <p>⏱️ Hora: <span style="color: #667eea;">${item.time}</span></p>
@@ -205,23 +258,18 @@ async function clearData() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert(`❌ Erro: ${data.error || data.message}`);
+                setErrorStatus(data.error || data.message || "Falha ao limpar os dados.");
                 return;
             }
 
-            // Mostrar sucesso
-            statusBadge.innerHTML = `
-                <p style="color: #51cf66; font-weight: bold;">✅ Dados limpos com sucesso!</p>
-                <p>Carregando...</p>
-            `;
+            setSuccessStatus("Dados limpos com sucesso! Recarregando...");
 
-            // Recarregar informações após um pequeno delay
             setTimeout(() => {
                 loadInfo();
             }, 500);
 
         } catch (error) {
-            alert(`❌ Erro ao limpar dados: ${error.message}`);
+            setErrorStatus(`Erro ao limpar dados: ${error.message}`);
         }
     }
 }
@@ -310,7 +358,7 @@ async function advancedSearch() {
                 <div class="card">
                     <p><strong>📦 ${item.product_name}</strong></p>
                     <p>🔑 Base: <span style="color: #667eea;">${item.base_code}</span></p>
-                    <p>🎨 Cor: <span style="color: #667eea;">${item.color_code}</span></p>
+                    <p>🎨 Cor dosada: <span style="color: #667eea;">${item.cor || item.color_code || "-"}</span></p>
                     <p>📊 Volume: <span style="color: #667eea;">${item.volume}</span></p>
                     <p>📅 Data: <span style="color: #667eea;">${item.date}</span></p>
                     <p>⏱️ Hora: <span style="color: #667eea;">${item.time}</span></p>
