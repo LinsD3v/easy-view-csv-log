@@ -134,7 +134,7 @@ async function loadInfo() {
 
         statusBadge.innerHTML = `
             <p class="status-loading">📁 <strong>Nenhum CSV carregado</strong></p>
-            <p>Envie um arquivo CSV p=ara começar</p>
+            <p>Envie um arquivo CSV para começar</p>
         `;
     }
 }
